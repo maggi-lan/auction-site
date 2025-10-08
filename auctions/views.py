@@ -8,7 +8,6 @@ from django.urls import reverse
 from .models import User
 
 
-@login_required
 def index(request):
     return render(request, "auctions/index.html")
 
