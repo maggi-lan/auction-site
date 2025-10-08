@@ -1,0 +1,12 @@
+# Temporary files
+*.swp
+.*.swp
+*.tmp
+
+# Python dependencies
+__pycache__/
+*.pyc
+
+# Environment files
+.env
+.env.*
