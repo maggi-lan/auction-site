@@ -1,11 +1,37 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.forms import ModelForm, TextInput, Textarea, URLInput, NumberInput
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User
+from .models import User, Listing, Bid, Comment
+
+class ListingForm(ModelForm):
+	class Meta:
+		model = Listing
+		fields = ["title", "description", "image", "category"]
+		widgets = {
+			"title": TextInput(attrs={"autofocus": "autofocus", "placeholder": "Title", "class": "form-control"}),
+			"description": Textarea(attrs={"placeholder": "Description", "class": "form-control"}),
+			"image": URLInput(attrs={"placeholder": "Image URL (Optional)", "class": "form-control"}),
+			"category": TextInput(attrs={"placeholder": "Category (Optional)", "class": "form-control"}),
+		}
+		labels = {
+			"title": "",
+			"description": "",
+			"image": "",
+			"category": "",
+		}
+
+class StartBidForm(ModelForm):
+	class Meta:
+		model = Bid
+		fields = ["starting_bid"]
+		widgets = {"starting_bid": NumberInput(attrs={"placeholder": "Starting Bid", "class": "form-control"})}
+		labels = {"starting_bid": ""}
+
 
 
 def index(request):
@@ -62,3 +88,30 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
+
+
+@login_required
+def create(request):
+	if request.method == "POST":
+		form = ListingForm(request.POST)
+		starting = StartBidForm(request.POST)
+		if form.is_valid() and starting.is_valid():
+			form = form.save(commit=False)
+			form.posted_by = request.user
+			starting = starting.save(commit=False)
+			form.bid_details = starting
+			starting.save()
+			form.save()
+			
+			return HttpResponseRedirect(reverse("index"))
+		else:
+			return render(request, "auctions/create.html", {
+				"form": form,
+				"start_bid": starting
+			})
+
+	else:
+		return render(request, "auctions/create.html", {
+			"form": ListingForm(),
+			"start_bid": StartBidForm()
+		})
