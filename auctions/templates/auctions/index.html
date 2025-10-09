@@ -1,7 +1,31 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
+
     <h2>Active Listings</h2>
 
-    TODO
+		{% for listing in listings %}
+			<div class="row">
+				<div class="listing-col col-lg-3 col-sm-6">
+					{% if listing.image %}
+						<div class="image-wrapper">
+							<img alt="listing image" src="{{ listing.image }}" class="fit-image">
+						</div>
+					{% endif %}
+				</div>
+				<div class="listing-col col-lg-9 col-sm-6">
+					<div><h4>{{ listing.title }}</h4></div>
+					<div><b>Price:</b>
+						{% if listing.bid_details.current_bid == 0 %}
+							{{ listing.bid_details.starting_bid }}
+						{% else %}
+							{{ listing.bid_details.current_bid }}
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		{% empty %}
+			<div>NO LISTINGS AVAILABLE</div>
+		{% endfor %}
+
 {% endblock %}

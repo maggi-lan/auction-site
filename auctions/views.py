@@ -35,7 +35,8 @@ class StartBidForm(ModelForm):
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+	listings = Listing.objects.all()
+	return render(request, "auctions/index.html", {"listings": listings})
 
 
 def login_view(request):
@@ -107,7 +108,8 @@ def create(request):
 		else:
 			return render(request, "auctions/create.html", {
 				"form": form,
-				"start_bid": starting
+				"start_bid": starting,
+				"message": "Invalid Input"
 			})
 
 	else:
