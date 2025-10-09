@@ -1,0 +1,60 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+	<div id="container">
+		<h1>{{ listing.title }}</h1>
+
+		{% if user != listing.posted_by and user.is_authenticated and listing.active %}
+			<button class="btn btn-secondary btn-sm">Watchlist</button>
+		{% endif %}
+
+		<div class="image-wrapper">
+			<img alt="listing image" src="{{ listing.image }}" class="fit-image">
+		</div>
+
+		<div>{{ listing.description }}</div>
+
+		<h3>
+			{% if listing.bid_details.current_bid == 0 %}
+				${{ listing.bid_details.starting_bid }}
+			{% else %}
+				${{ listing.bid_details.current_bid }}
+			{% endif %}
+		</h3>
+
+		{% if user != listing.posted_by and user.is_authenticated and listing.active %}
+			{% if message %}
+				<div>{{ message }}</div>
+			{% endif %}
+			<form method="post">
+				{% csrf_token %}
+				<input type="number" name="current_bid" placeholder="Bid" class="form-control" step="0.01">
+				<button class="btn btn-primary">Place Bid</button>
+			</form>
+		{% endif %}
+
+		{% if user == listing.posted_by and listing.active %}
+			<button class="btn btn-primary">Close Bid</button>
+		{% endif %}
+	</div>
+
+	<hr>
+
+	<div>
+		<h3>Details</h3>
+		<ul>
+		<li>Listed by: {{ listing.posted_by }}</li>
+		<li>
+			Category:
+			{% if listing.category %}
+				{{ listing.category }}
+			{% else %}
+				No Category Listed
+			{% endif %}
+		</li>
+		<li>Posted at: {{ listing.posted_at }}</li>
+		<li>Starting bid: ${{ listing.bid_details.starting_bid }}</li>
+	</div>
+
+{% endblock %}

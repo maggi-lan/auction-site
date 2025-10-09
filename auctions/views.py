@@ -117,3 +117,13 @@ def create(request):
 			"form": ListingForm(),
 			"start_bid": StartBidForm()
 		})
+
+def listing(request, listing_id):
+	try:
+		listing = Listing.objects.get(id=listing_id)
+	except:
+		return render(request, "auctions/404_error.html")
+	
+	return render(request, "auctions/listing.html", {
+		"listing": listing,
+	})

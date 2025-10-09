@@ -31,3 +31,15 @@ body {
 	max-width: 100%;
 	object-fit: contain;
 }
+
+.link {
+	color: black;
+}
+
+.link:hover {
+	color: black;
+}
+
+#container  * {
+	margin: 10px 0px;	
+}
