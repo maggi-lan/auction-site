@@ -3,7 +3,10 @@ body {
 }
 
 .row {
-	margin: 1px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	margin-right: 1px;
+	margin-left: 1px;
 }
 
 .listing-col {
@@ -15,7 +18,7 @@ body {
 }
 
 .image-wrapper {
-	height: 150px; /* fixed height */
+	height: 200px; /* fixed height */
 	width: 100%; /* take full column width */
 	display: flex;
 	align-items: center;

@@ -35,7 +35,7 @@ class StartBidForm(ModelForm):
 
 
 def index(request):
-	listings = Listing.objects.all()
+	listings = Listing.objects.filter(active=True)
 	return render(request, "auctions/index.html", {"listings": listings})
 
 

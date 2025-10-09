@@ -6,21 +6,27 @@
 
 		{% for listing in listings %}
 			<div class="row">
-				<div class="listing-col col-lg-3 col-sm-6">
-					{% if listing.image %}
+				{% if listing.image %}
+					<div class="listing-col col-lg-3 col-sm-6">
 						<div class="image-wrapper">
 							<img alt="listing image" src="{{ listing.image }}" class="fit-image">
 						</div>
-					{% endif %}
-				</div>
+					</div>
+				{% endif %}
 				<div class="listing-col col-lg-9 col-sm-6">
 					<div><h4>{{ listing.title }}</h4></div>
 					<div><b>Price:</b>
 						{% if listing.bid_details.current_bid == 0 %}
-							{{ listing.bid_details.starting_bid }}
+							${{ listing.bid_details.starting_bid }}
 						{% else %}
-							{{ listing.bid_details.current_bid }}
+							${{ listing.bid_details.current_bid }}
 						{% endif %}
+					</div>
+					<div>{{ listing.description }}</div>
+					<div>
+						<p style="color: #888;">
+							Created at {{ listing.posted_at }}
+						</p>
 					</div>
 				</div>
 			</div>
