@@ -36,7 +36,12 @@ class StartBidForm(ModelForm):
 
 def index(request):
 	listings = Listing.objects.filter(active=True)
-	return render(request, "auctions/index.html", {"listings": listings})
+	return render(request, "auctions/index.html", {"listings": listings, "active": True})
+
+
+def closed(request):
+	listings = Listing.objects.filter(active=False)
+	return render(request, "auctions/index.html", {"listings": listings, "active": False})
 
 
 def login_view(request):
@@ -198,3 +203,24 @@ def place_bid(request, listing_id):
 		})
 	else:
 		return HttpResponseRedirect(reverse("listing", args=[listing_id]))
+
+
+@login_required
+def close_bid(request, listing_id):
+	if request.method == "POST":
+		try:
+			listing = Listing.objects.get(id=listing_id)
+		except:
+			return render(request, "auctions/error.html", {"message": "Page Not Found"})
+
+		if listing.posted_by != request.user:
+			return render(request, "auctions/error.html", {"message": "Forbidden"})
+
+		if not listing.active:
+			return render(request, "auctions/error.html", {"message": "Bad Request"})
+
+		listing.active = False
+		listing.watchlisted_by.clear()
+		listing.save()
+	
+	return HttpResponseRedirect(reverse("listing", args=[listing_id]))

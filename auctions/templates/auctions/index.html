@@ -2,7 +2,14 @@
 
 {% block body %}
 
-    <h2>Active Listings</h2>
+    <h2>
+		{% if active %}
+			Active
+		{% else %}
+			Closed
+		{% endif %}
+		Listings
+	</h2>
 
 		{% for listing in listings %}
 			<a href="{% url 'listing' listing_id=listing.id %}" class="link" style="text-decoration: none;">

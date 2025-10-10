@@ -2,6 +2,28 @@
 
 {% block body %}
 
+	{% if message %}
+		<div class="alert alert-danger" role="alert">{{ message }}</div>
+	{% endif %}
+	{% if success %}
+		<div class="alert alert-success" role="alert">{{ success }}</div>
+	{% endif %}
+	{% if not listing.active %}
+		<div class="alert alert-primary" role="alert">
+			BID CLOSED:
+			{% if listing.bid_details.highest_bidder %}
+				{% if user == listing.bid_details.highest_bidder %}
+					you
+				{% else %}
+					{{ listing.bid_details.highest_bidder }}
+				{% endif %}
+				won the bid for ${{ listing.bid_details.current_bid }}
+			{% else %}
+				No one won this bid			
+			{% endif %}
+		</div>
+	{% endif %}
+
 	<div id="container">
 		<h1>{{ listing.title }}</h1>
 
@@ -41,12 +63,6 @@
 		</div>
 
 		{% if user != listing.posted_by and user.is_authenticated and listing.active %}
-			{% if message %}
-				<div class="alert alert-danger" role="alert">{{ message }}</div>
-			{% endif %}
-			{% if success %}
-				<div class="alert alert-success" role="alert">{{ success }}</div>
-			{% endif %}
 			<form action="{% url 'place_bid' listing.id %}" method="post">
 				{% csrf_token %}
 				<input type="number" name="current_bid" placeholder="Bid" required class="form-control" step="0.01">
@@ -55,7 +71,10 @@
 		{% endif %}
 
 		{% if user == listing.posted_by and listing.active %}
-			<button class="btn btn-primary">Close Bid</button>
+			<form action="{% url 'close_bid' listing.id %}" method="post">
+				{% csrf_token %}
+				<button class="btn btn-primary">Close Bid</button>
+			</form>
 		{% endif %}
 	</div>
 
