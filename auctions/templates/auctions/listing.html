@@ -32,13 +32,24 @@
 			{% endif %}
 		</h3>
 
+		<div>
+			{% if listing.bid_details.highest_bidder %}
+				Last bid placed by <b>{{ listing.bid_details.highest_bidder.username }}</b> for <b>${{ listing.bid_details.current_bid }}</b>
+			{% else %}
+				No bids placed yet
+			{% endif %}
+		</div>
+
 		{% if user != listing.posted_by and user.is_authenticated and listing.active %}
 			{% if message %}
-				<div>{{ message }}</div>
+				<div class="alert alert-danger" role="alert">{{ message }}</div>
 			{% endif %}
-			<form method="post">
+			{% if success %}
+				<div class="alert alert-success" role="alert">{{ success }}</div>
+			{% endif %}
+			<form action="{% url 'place_bid' listing.id %}" method="post">
 				{% csrf_token %}
-				<input type="number" name="current_bid" placeholder="Bid" class="form-control" step="0.01">
+				<input type="number" name="current_bid" placeholder="Bid" required class="form-control" step="0.01">
 				<button class="btn btn-primary">Place Bid</button>
 			</form>
 		{% endif %}

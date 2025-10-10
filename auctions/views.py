@@ -158,3 +158,43 @@ def watchlist(request, listing_id):
 	else:
 		return HttpResponseRedirect(reverse("listing", args=[listing_id]))
 
+@login_required
+def place_bid(request, listing_id):
+	if request.method == "POST":
+		try:
+			listing = Listing.objects.get(id=listing_id)
+		except:
+			return render(request, "auctions/error.html", {"message": "Page Not Found"})
+
+		if listing.posted_by == request.user:
+			return render(request, "auctions/error.html", {"message": "Forbidden"})
+
+		try:
+			bid = listing.bid_details
+			bid_price = float(request.POST["current_bid"])
+			print(bid_price, type(bid_price))
+
+			if bid.current_bid == 0:
+				if bid_price < bid.starting_bid:
+					raise ValueError
+			else:
+				if bid_price <= bid.current_bid:
+					raise ValueError
+		except:
+			return render(request, "auctions/listing.html", {
+				"listing": listing,
+				"watchlisted": request.user.watchlist.filter(pk=listing.id).exists(),
+				"message": "Invalid Bid",
+			})
+
+		bid.current_bid = bid_price
+		bid.highest_bidder = request.user
+		bid.save()
+
+		return render(request, "auctions/listing.html", {
+			"listing": listing,
+			"watchlisted": request.user.watchlist.filter(pk=listing.id).exists(),
+			"success": "Bid Placed",
+		})
+	else:
+		return HttpResponseRedirect(reverse("listing", args=[listing_id]))
