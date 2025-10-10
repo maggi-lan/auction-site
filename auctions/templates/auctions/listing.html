@@ -6,7 +6,16 @@
 		<h1>{{ listing.title }}</h1>
 
 		{% if user != listing.posted_by and user.is_authenticated and listing.active %}
-			<button class="btn btn-secondary btn-sm">Watchlist</button>
+			<form action="{% url 'watchlist' listing.id %}" method="post">
+				{% csrf_token %}
+				<button class="btn btn-secondary btn-sm">
+					{% if watchlisted %}
+						Remove From Watchlist
+					{% else %}
+						Add To Watchlist
+					{% endif %}
+				</button>
+			</form>
 		{% endif %}
 
 		<div class="image-wrapper">

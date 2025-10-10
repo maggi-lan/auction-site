@@ -118,12 +118,43 @@ def create(request):
 			"start_bid": StartBidForm()
 		})
 
+
 def listing(request, listing_id):
 	try:
 		listing = Listing.objects.get(id=listing_id)
 	except:
-		return render(request, "auctions/404_error.html")
+		return render(request, "auctions/error.html", {"message": "Page Not Found"})
+	
+	watchlisted = False
+	if request.user.is_authenticated:
+		watchlisted = request.user.watchlist.filter(pk=listing.id).exists()
 	
 	return render(request, "auctions/listing.html", {
 		"listing": listing,
+		"watchlisted": watchlisted,
 	})
+
+
+@login_required
+def watchlist(request, listing_id):
+	if request.method == "POST":
+		try:
+			listing = Listing.objects.get(id=listing_id)
+		except:
+			return render(request, "auctions/error.html", {"message": "Page Not Found"})
+		
+		if listing.posted_by == request.user:
+			return render(request, "auctions/error.html", {"message": "Forbidden"})
+
+		# Deleting a listing from watchlist
+		if request.user.watchlist.filter(pk=listing.id).exists():
+			request.user.watchlist.remove(listing)
+
+		# Adding a listing from watchlist
+		else:
+			request.user.watchlist.add(listing)
+
+		return HttpResponseRedirect(reverse("listing", args=[listing_id]))
+	else:
+		return HttpResponseRedirect(reverse("listing", args=[listing_id]))
+
