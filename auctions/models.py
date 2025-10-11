@@ -18,7 +18,7 @@ class Listing(models.Model):
 	posted_at = models.DateTimeField(default=timezone.now)
 
 	def __str__(self):
-		return f"Title: {self.title}, Bid Price: {self.bid_details.current_bid} Posted By: {self.posted_by}"
+		return f"Title: {self.title}, Bid Price: {self.bid_details.current_bid}, Posted By: {self.posted_by}"
 
 
 class Bid(models.Model):
