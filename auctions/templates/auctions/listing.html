@@ -24,7 +24,7 @@
 		</div>
 	{% endif %}
 
-	<div id="container">
+	<div class="container-div">
 		<h1>{{ listing.title }}</h1>
 
 		{% if user != listing.posted_by and user.is_authenticated and listing.active %}
@@ -82,6 +82,7 @@
 
 	<div>
 		<h3>Details</h3>
+
 		<ul>
 		<li>Listed by: {{ listing.posted_by }}</li>
 		<li>
@@ -94,6 +95,33 @@
 		</li>
 		<li>Posted at: {{ listing.posted_at }}</li>
 		<li>Starting bid: ${{ listing.bid_details.starting_bid }}</li>
+	</div>
+
+	<hr>
+
+	<div class="container-div">
+		<h3>Comments</h3>
+
+		{% if user.is_authenticated and user != listing.posted_by and listing.active %}
+			<form action="{% url 'comment' listing.id %}" method="POST">
+				{% csrf_token %}
+				{{ comment_form }}
+				<button class="btn btn-primary">Comment</button>
+			</form>
+		{% endif %}
+
+		{% for comment in comments %}
+			<div class="card mb-0">
+				<div class="card-body py-1 px-2">
+					<strong class="text-primary">{{ comment.posted_by }}</strong>
+					<p class="mb-0 mt-1">{{ comment.comment }}</p>
+				</div>
+			</div>
+		{% empty %}
+			<div class="alert alert-secondary" role="alert">
+				No comments available.
+			</div>
+		{% endfor %}
 	</div>
 
 {% endblock %}

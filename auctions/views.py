@@ -32,6 +32,13 @@ class StartBidForm(ModelForm):
 		widgets = {"starting_bid": NumberInput(attrs={"placeholder": "Starting Bid", "class": "form-control"})}
 		labels = {"starting_bid": ""}
 
+class CommentForm(ModelForm):
+	class Meta:
+		model = Comment
+		fields = ["comment"]
+		widgets = {"comment": Textarea(attrs={"placeholder": "Write a Comment", "class": "form-control", "rows": "4"})}
+		labels = {"comment": ""}
+
 
 
 def index(request):
@@ -108,12 +115,12 @@ def create(request):
 		form = ListingForm(request.POST)
 		starting = StartBidForm(request.POST)
 		if form.is_valid() and starting.is_valid():
-			form = form.save(commit=False)
-			form.posted_by = request.user
-			starting = starting.save(commit=False)
-			form.bid_details = starting
-			starting.save()
-			form.save()
+			listing = form.save(commit=False)
+			listing.posted_by = request.user
+			bid = starting.save(commit=False)
+			listing.bid_details = bid
+			bid.save()
+			listing.save()
 			
 			return HttpResponseRedirect(reverse("index"))
 		else:
@@ -143,6 +150,8 @@ def listing(request, listing_id):
 	return render(request, "auctions/listing.html", {
 		"listing": listing,
 		"watchlisted": watchlisted,
+		"comment_form": CommentForm(),
+		"comments": listing.comments.all()
 	})
 
 
@@ -156,6 +165,9 @@ def watchlist(request, listing_id):
 		
 		if listing.posted_by == request.user:
 			return render(request, "auctions/error.html", {"message": "Forbidden"})
+
+		if not listing.active:
+			return render(request, "auctions/error.html", {"message": "Bad Request"})
 
 		# Deleting a listing from watchlist
 		if request.user.watchlist.filter(pk=listing.id).exists():
@@ -179,6 +191,9 @@ def place_bid(request, listing_id):
 
 		if listing.posted_by == request.user:
 			return render(request, "auctions/error.html", {"message": "Forbidden"})
+
+		if not listing.active:
+			return render(request, "auctions/error.html", {"message": "Bad Request"})
 
 		try:
 			bid = listing.bid_details
@@ -229,4 +244,32 @@ def close_bid(request, listing_id):
 		listing.watchlisted_by.clear()
 		listing.save()
 	
+	return HttpResponseRedirect(reverse("listing", args=[listing_id]))
+
+
+@login_required
+def comment(request, listing_id):
+	if request.method == "POST":
+		try:
+			listing = Listing.objects.get(id=listing_id)
+		except:
+			return render(request, "auctions/error.html", {"message": "Page Not Found"})
+
+		if listing.posted_by == request.user:
+			return render(request, "auctions/error.html", {"message": "Forbidden"})
+
+		if not listing.active:
+			return render(request, "auctions/error.html", {"message": "Bad Request"})
+
+		form = CommentForm(request.POST)
+		
+		print("form recieved")
+
+		if form.is_valid():
+			print("form is valid")
+			comment = form.save(commit=False)
+			comment.posted_by = request.user
+			comment.listing = listing
+			comment.save()
+
 	return HttpResponseRedirect(reverse("listing", args=[listing_id]))
