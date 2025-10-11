@@ -3,12 +3,7 @@
 {% block body %}
 
     <h2>
-		{% if active %}
-			Active
-		{% else %}
-			Closed
-		{% endif %}
-		Listings
+		{{ purpose }}
 	</h2>
 
 		{% for listing in listings %}

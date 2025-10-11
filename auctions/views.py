@@ -36,12 +36,18 @@ class StartBidForm(ModelForm):
 
 def index(request):
 	listings = Listing.objects.filter(active=True)
-	return render(request, "auctions/index.html", {"listings": listings, "active": True})
+	return render(request, "auctions/index.html", {"listings": listings, "purpose": "Active Listings"})
 
 
 def closed(request):
 	listings = Listing.objects.filter(active=False)
-	return render(request, "auctions/index.html", {"listings": listings, "active": False})
+	return render(request, "auctions/index.html", {"listings": listings, "purpose": "Closed Listings"})
+
+
+@login_required
+def watchlisted(request):
+	listings = request.user.watchlist.all()
+	return render(request, "auctions/index.html", {"listings": listings, "purpose": "Watchlist"})
 
 
 def login_view(request):
